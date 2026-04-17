@@ -11,23 +11,14 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve the application with Caddy
-FROM caddy:2-alpine
+# Stage 2: Serve with nginx (more reliable than Caddy for static sites)
+FROM nginx:alpine
 
-# Set working directory
-WORKDIR /srv
+# Copy built files to nginx web root
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy the built Vite app from the builder stage
-COPY --from=builder /app/dist ./dist
+# Copy custom nginx config for SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the Caddyfile
-COPY Caddyfile /etc/caddy/Caddyfile
-
-# Expose port 80
 EXPOSE 80
-
-# Set the PORT environment variable if not set
-ENV PORT=80
-
-# Command to run Caddy
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+CMD ["nginx", "-g", "daemon off;"]
