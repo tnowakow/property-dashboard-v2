@@ -11,6 +11,7 @@ import { Moon, Sun, Smartphone, LayoutGrid, Users } from 'lucide-react'
 function App() {
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [showUnitView, setShowUnitView] = useState(false)
   const [viewMode, setViewMode] = useState('inbox') // 'inbox' | 'technician'
@@ -39,17 +40,24 @@ function App() {
 
   async function loadTickets() {
     try {
+      console.log('Loading tickets from Supabase...')
       const { data, error } = await supabase
         .from('tickets')
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
       
+      console.log('Tickets loaded:', data?.length || 0)
       setTickets(data || [])
     } catch (err) {
       console.error('Error loading tickets:', err)
-      toast.error('Failed to load tickets')
+      toast.error('Failed to load tickets: ' + err.message)
+      // Show error state instead of blank page
+      setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -133,6 +141,23 @@ function App() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
           <p>Loading tickets...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-destructive/10 rounded-lg border border-destructive max-w-md">
+          <p className="text-lg font-semibold text-destructive mb-2">Error Loading Tickets</p>
+          <p className="text-sm opacity-90">{error}</p>
+          <button 
+            onClick={() => loadTickets()}
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90"
+          >
+            Retry
+          </button>
         </div>
       </div>
     )
