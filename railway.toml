@@ -1,2 +1,3 @@
 [build]
-builder = "NIXPACKS"
+command = "npm ci && npm run build"
+publishPath = "./dist"
