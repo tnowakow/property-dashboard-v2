@@ -12,8 +12,10 @@ RUN npm run build
 
 # Production stage - serve with Caddy (lightweight, handles SPA routing)
 FROM caddy:alpine
+# Copy the built files from the build stage
 COPY --from=build /app/dist /usr/share/caddy
+# Copy the Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 80
-ENTRYPOINT ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
