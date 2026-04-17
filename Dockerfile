@@ -4,12 +4,12 @@ FROM node:20-alpine as builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json yarn.lock* ./
-RUN yarn install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # Copy source code and build
 COPY . .
-RUN yarn build
+RUN npm run build
 
 # Stage 2: Serve the application with Caddy
 FROM caddy:2-alpine
