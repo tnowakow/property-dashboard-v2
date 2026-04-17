@@ -1,5 +1,7 @@
-:80 {
-    root * /usr/share/caddy
+:{$PORT} {
+    root * /srv/dist
     file_server
     try_files {path} /index.html
+    encode gzip
+    auto_https off
 }

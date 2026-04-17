@@ -1,21 +1,27 @@
-# Build stage
-FROM node:20-alpine AS build
+# Stage 1: Build the Vite React application
+FROM node:20-alpine as builder
+
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json yarn.lock* ./
+RUN yarn install --frozen-lockfile
 
-# Copy source code and build
 COPY . .
-RUN npm run build
+RUN yarn build
 
-# Production stage - serve with Caddy (lightweight, handles SPA routing)
-FROM caddy:alpine
-# Copy the built files from the build stage
-COPY --from=build /app/dist /usr/share/caddy
+# Stage 2: Serve the application with Caddy
+FROM caddy:2-alpine
+
+WORKDIR /srv
+
+# Copy the built Vite app from the builder stage
+COPY --from=builder /app/dist ./dist
+
 # Copy the Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
 
+# Expose the port Caddy will listen on
 EXPOSE 80
+
+# Command to run Caddy
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
