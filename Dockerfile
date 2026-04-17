@@ -16,4 +16,4 @@ COPY --from=build /app/dist /usr/share/caddy
 COPY Caddyfile /
 
 EXPOSE 80
-CMD ["sh", "-c", "caddy adapt --config /Caddyfile --overwrite && caddy run --adapter caddyfile"]
+CMD ["caddy", "run", "--config", "/Caddyfile"]
