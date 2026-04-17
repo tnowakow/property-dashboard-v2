@@ -1,5 +1,6 @@
 [build]
 cmd = "npm ci && npm run build"
+publishDir = "./dist"
 
 [deploy]
 startCommand = "npm run preview"
