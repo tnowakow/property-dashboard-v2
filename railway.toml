@@ -1,5 +1,2 @@
 [build]
-builder = "DOCKERFILE"
-
-[deploy]
-dockerfile = "./Dockerfile"
+builder = "NIXPACKS"
