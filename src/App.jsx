@@ -65,22 +65,27 @@ function App() {
 
   async function updateTicket(ticketId, updates) {
     try {
-      const { error } = await supabase
+      const { data: updatedData, error } = await supabase
         .from('tickets')
         .update(updates)
         .eq('id', ticketId)
+        .select()
+        .single()
       
       if (error) throw error
       
-      // Update local state
+      // Update tickets list
       setTickets(prev => prev.map(t => 
         t.id === ticketId ? { ...t, ...updates } : t
       ))
       
+      // Update selected ticket in detail panel
+      setSelectedTicket(prev => prev?.id === ticketId ? { ...prev, ...updates } : prev)
+      
       toast.success('Ticket updated')
     } catch (err) {
       console.error('Error updating ticket:', err)
-      toast.error('Failed to update ticket')
+      toast.error('Failed to update ticket: ' + err.message)
     }
   }
 
