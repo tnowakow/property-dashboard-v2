@@ -1,0 +1,9 @@
+[build]
+builder = "NPM"
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npx serve -s dist"
+numReplicas = 1
+minReplicas = 1
+maxReplicas = 2
