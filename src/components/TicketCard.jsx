@@ -1,4 +1,4 @@
-import { calculateSLATimeRemaining, formatSLATime, getUrgencyColor, getStatusColor } from '../lib/utils'
+import { calculateSLATimeRemaining, formatSLATime, getUrgencyColor, getUrgencyBorder, getStatusColor } from '../lib/utils'
 
 export function TicketCard({ ticket, onClick }) {
   const slaInfo = calculateSLATimeRemaining(ticket)

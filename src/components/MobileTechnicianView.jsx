@@ -1,5 +1,5 @@
 import { Camera, CheckCircle, Clock } from 'lucide-react'
-import { calculateSLATimeRemaining, formatSLATime, getUrgencyColor, getStatusColor } from '../lib/utils'
+import { calculateSLATimeRemaining, formatSLATime, getUrgencyColor, getUrgencyBorder, getStatusColor } from '../lib/utils'
 
 export function MobileTechnicianView({ tickets, onUpdate }) {
   const assignedTickets = tickets.filter(t => 
