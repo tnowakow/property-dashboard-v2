@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from './lib/supabase'
+import { getTickets, updateTicket as apiUpdateTicket } from './lib/api'
 import { CommandPalette } from './components/CommandPalette'
 import { TicketBoard } from './components/TicketBoard'
 import { TicketDetailPanel } from './components/TicketDetailPanel'
@@ -40,19 +40,15 @@ function App() {
 
   async function loadTickets() {
     try {
-      console.log('Loading tickets from Supabase...')
-      const { data, error } = await supabase
-        .from('tickets')
-        .select('*')
-        .order('created_at', { ascending: false })
+      console.log('Loading tickets from backend API...')
+      const data = await getTickets()
       
-      if (error) {
-        console.error('Supabase error:', error)
-        throw error
+      if (!data) {
+        throw new Error('No data returned from API')
       }
       
-      console.log('Tickets loaded:', data?.length || 0)
-      setTickets(data || [])
+      console.log('Tickets loaded:', data.length)
+      setTickets(data)
     } catch (err) {
       console.error('Error loading tickets:', err)
       toast.error('Failed to load tickets: ' + err.message)
@@ -65,14 +61,11 @@ function App() {
 
   async function updateTicket(ticketId, updates) {
     try {
-      const { data: updatedData, error } = await supabase
-        .from('tickets')
-        .update(updates)
-        .eq('id', ticketId)
-        .select()
-        .single()
+      const updatedData = await apiUpdateTicket(ticketId, updates)
       
-      if (error) throw error
+      if (!updatedData) {
+        throw new Error('No data returned after update')
+      }
       
       // Update tickets list
       setTickets(prev => prev.map(t => 
