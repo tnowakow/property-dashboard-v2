@@ -90,6 +90,15 @@ async def serve_favicon():
             return FileResponse(favicon_path)
     raise HTTPException(status_code=404, detail="Favicon not found")
 
+@app.get("/boss-icon.svg")
+async def serve_boss_icon():
+    """Serve PropertyBoss icon."""
+    if os.path.exists(FRONTEND_DIST):
+        icon_path = os.path.join(FRONTEND_DIST, "boss-icon.svg")
+        if os.path.exists(icon_path):
+            return FileResponse(icon_path)
+    raise HTTPException(status_code=404, detail="Boss icon not found")
+
 @app.get("/icons.svg")
 async def serve_icons():
     """Serve icons."""
