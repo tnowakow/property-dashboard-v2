@@ -1,22 +1,15 @@
 # Property Maintenance Dashboard - Combined Backend + Frontend Deployment
-# This service runs both the Python API backend and serves the React frontend
+# Uses custom Dockerfile for precise control over Python runtime
 
 [build]
-builder = "NIXPACKS"
-plan = "standard"
-
-[[build.commands]]
-command = "pip install -r requirements.txt"
+builder = "DOCKER"
 
 [deploy]
-startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 numReplicas = 1
 
-# Runtime settings - Python only, no Node build needed (frontend pre-built)
 [env]
 PYTHON_VERSION = "3.11"
-NODE_VERSION = "20.19.0"
 NODE_ENV = "production"
 PORT = 8000
