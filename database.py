@@ -93,8 +93,11 @@ async def create_ticket(
             if not row:
                 raise Exception("No data returned after ticket insert")
             
-            # Convert Row to dict for compatibility
+            # Convert Row to dict and ensure UUID is string
             ticket = dict(row)
+            if 'id' in ticket and hasattr(ticket['id'], '__str__'):
+                ticket['id'] = str(ticket['id'])
+            
             print(f"Created ticket {ticket['id']} for unit {unit}")
             
             return ticket
@@ -127,7 +130,12 @@ async def get_ticket(ticket_id: str) -> Optional[Dict[str, Any]]:
                 print(f"Ticket {ticket_id} not found")
                 return None
             
-            return dict(row)
+            # Convert row to dict and ensure UUID is string
+            ticket = dict(row)
+            if 'id' in ticket and hasattr(ticket['id'], '__str__'):
+                ticket['id'] = str(ticket['id'])
+            
+            return ticket
             
     except Exception as e:
         print(f"Error retrieving ticket {ticket_id}: {e}")
@@ -159,8 +167,6 @@ async def update_ticket(
             keys = list(updates.keys())
             values = list(updates.values())
             
-            print(f"DEBUG update_ticket: keys={keys}, values types={[type(v).__name__ for v in values]}")
-            
             # Remove ticket_id from update if present (it's the WHERE clause)
             if "id" in keys:
                 keys.remove("id")
@@ -182,7 +188,12 @@ async def update_ticket(
                 print(f"Ticket {ticket_id} not found for update")
                 return None
             
-            return dict(row)
+            # Convert row to dict and ensure UUIDs are strings
+            ticket = dict(row)
+            if 'id' in ticket and hasattr(ticket['id'], '__str__'):
+                ticket['id'] = str(ticket['id'])
+            
+            return ticket
             
     except Exception as e:
         print(f"Error updating ticket {ticket_id}: {e}")
