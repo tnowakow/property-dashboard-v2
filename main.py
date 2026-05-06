@@ -68,16 +68,6 @@ async def health_check():
         "version": "2.0.0"
     }
 
-@app.get("/")
-async def root():
-    """Root endpoint - serves frontend index.html."""
-    if os.path.exists(FRONTEND_DIST):
-        index_file = os.path.join(FRONTEND_DIST, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-    
-    return {"status": "healthy", "service": "property-maintenance-agent"}
-
 
 # ============================================================================
 # INTAKE ENDPOINTS
@@ -422,6 +412,8 @@ async def serve_spa(full_path: str):
         index_file = os.path.join(FRONTEND_DIST, "index.html")
         if os.path.exists(index_file):
             return FileResponse(index_file)
+    
+    raise HTTPException(status_code=404, detail="Frontend not available")
     
     raise HTTPException(status_code=404, detail="Frontend not available")
 
