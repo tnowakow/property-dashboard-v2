@@ -132,22 +132,52 @@ async def intake_sms(request: Request):
     logger.info(f"Received SMS from {sender}: {message}")
     
     try:
-        # Extract unit from message
+        # Extract property name and unit from message
         import re
-        unit = None
-        match = re.search(r'\bunit\s+(\d+[A-Z]?)\b', message, re.IGNORECASE)
-        if match:
-            unit = match.group(1)
         
-        # Create ticket in Supabase with status="incoming"
+        # Try to match "Property Name - Unit" format (e.g., "Maple Heights 2A")
+        property_name = None
+        unit = None
+        
+        # List of known properties
+        known_properties = ['Maple Heights', 'Oak Grove', 'Pine Valley', 'Cedar Point']
+        
+        # Try to find property name in message
+        for prop in known_properties:
+            if prop.lower() in message.lower():
+                property_name = prop
+                logger.info(f"Detected property: {property_name}")
+                break
+        
+        # Extract unit number (e.g., "1A", "2B", "101")
+        # Look for patterns like "unit 2A", "apartment 1B", or just "2A" at start
+        unit_match = re.search(r'\b(unit|apt|apartment)\s*(\d+[A-Z]?)\b', message, re.IGNORECASE)
+        if not unit_match:
+            # Try to find standalone unit number (e.g., "2A has a leak")
+            unit_match = re.search(r'\b(\d+[A-Z])\b', message)
+        
+        if unit_match:
+            unit = unit_match.group(2) if unit_match.lastindex >= 2 else unit_match.group(1)
+        
+        # If no property specified, default to first property
+        if not property_name:
+            property_name = 'Maple Heights'  # Default property
+            logger.info(f"No property specified, defaulting to: {property_name}")
+        
+        # Format unit with property name
+        formatted_unit = f"{property_name} - {unit}" if unit else property_name
+        
+        logger.info(f"Creating ticket for: {formatted_unit}")
+        
+        # Create ticket in database with status="incoming"
         ticket = await create_ticket(
-            unit=unit,
+            unit=formatted_unit,
             issue_raw=message,
             channel="sms",
             tenant_phone=sender,
         )
         
-        logger.info(f"Created ticket {ticket['id']} for unit {unit} from SMS")
+        logger.info(f"Created ticket {ticket['id']} for {formatted_unit} from SMS")
         
         return TicketCreateResponse(
             status="success",
@@ -171,19 +201,52 @@ async def intake_voice(request: VoiceIntakeRequest):
     logger.info(f"Received voice transcription from {request.From}: {request.TranscriptionText}")
     
     try:
-        # Create ticket in Supabase with status="incoming"
+        # Extract property name and unit from transcription
+        import re
+        
+        message = request.TranscriptionText
+        property_name = None
+        unit = None
+        
+        # List of known properties
+        known_properties = ['Maple Heights', 'Oak Grove', 'Pine Valley', 'Cedar Point']
+        
+        # Try to find property name in message
+        for prop in known_properties:
+            if prop.lower() in message.lower():
+                property_name = prop
+                logger.info(f"Detected property: {property_name}")
+                break
+        
+        # Extract unit number from transcription
+        unit_match = re.search(r'\b(unit|apt|apartment)\s*(\d+[A-Z]?)\b', message, re.IGNORECASE)
+        if not unit_match:
+            unit_match = re.search(r'\b(\d+[A-Z])\b', message)
+        
+        if unit_match:
+            unit = unit_match.group(2) if unit_match.lastindex >= 2 else unit_match.group(1)
+        
+        # If no property specified, default to first property
+        if not property_name:
+            property_name = 'Maple Heights'  # Default property
+            logger.info(f"No property specified, defaulting to: {property_name}")
+        
+        # Format unit with property name
+        formatted_unit = f"{property_name} - {unit}" if unit else property_name
+        
+        # Create ticket in database with status="incoming"
         ticket = await create_ticket(
-            unit=request.get_unit(),  # Extract unit from message if present
-            issue_raw=request.TranscriptionText,
+            unit=formatted_unit,
+            issue_raw=message,
             channel="call",
             tenant_phone=request.From,
         )
         
-        logger.info(f"Created ticket {ticket.id} from voice call")
+        logger.info(f"Created ticket {ticket['id']} for {formatted_unit} from voice call")
         
         return TicketCreateResponse(
             status="success",
-            ticket_id=ticket.id
+            ticket_id=ticket['id']
         )
     except Exception as e:
         logger.error(f"Error processing voice intake: {e}")
