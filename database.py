@@ -159,6 +159,8 @@ async def update_ticket(
             keys = list(updates.keys())
             values = list(updates.values())
             
+            print(f"DEBUG update_ticket: keys={keys}, values types={[type(v).__name__ for v in values]}")
+            
             # Remove ticket_id from update if present (it's the WHERE clause)
             if "id" in keys:
                 keys.remove("id")
