@@ -17,6 +17,10 @@ import httpx
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Debug: Check environment variables at startup
+debug_db_url = os.getenv("DATABASE_URL", "NOT SET")[:50] + "..." if os.getenv("DATABASE_URL") else "NOT SET"
+print(f"[Startup] DATABASE_URL is set: {debug_db_url}")
+
 # Import local modules
 from models import (
     SMSIntakeRequest,
