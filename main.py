@@ -53,7 +53,7 @@ app.add_middleware(
 FRONTEND_DIST = os.path.join(os.path.dirname(__file__), 'dist')
 if os.path.exists(FRONTEND_DIST):
     from fastapi.staticfiles import StaticFiles
-    app.mount("/static", StaticFiles(directory=FRONTEND_DIST, html=True), name="static")
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="static")
     print(f"[Startup] Frontend static files mounted at {FRONTEND_DIST}")
 else:
     print(f"[Warning] Frontend dist not found at {FRONTEND_DIST} - API only mode")
@@ -400,11 +400,15 @@ async def serve_spa(full_path: str):
     Returns index.html to let React Router handle client-side routing.
     Must be last due to path matching order in FastAPI.
     """
-    # Don't interfere with API routes - check these first
+    # Don't interfere with API routes or static assets - check these first
     if full_path.startswith("api/") or \
        full_path.startswith("intake/") or \
        full_path.startswith("agent/") or \
-       full_path == "health":
+       full_path == "health" or \
+       full_path.startswith("assets/") or \
+       full_path.endswith(".svg") or \
+       full_path.endswith(".js") or \
+       full_path.endswith(".css"):
         raise HTTPException(status_code=404, detail="Not found")
     
     # Serve frontend index.html
