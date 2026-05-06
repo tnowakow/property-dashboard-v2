@@ -150,8 +150,8 @@ async def update_ticket(
     """
     pool = await get_db_pool()
     
-    # Always update the updated_at timestamp
-    updates["updated_at"] = datetime.utcnow().isoformat()
+    # Always update the updated_at timestamp (use datetime object, not ISO string)
+    updates["updated_at"] = datetime.utcnow()
     
     try:
         async with pool.acquire() as conn:
