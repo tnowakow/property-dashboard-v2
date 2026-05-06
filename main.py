@@ -407,8 +407,10 @@ async def serve_spa(full_path: str):
     Must be last due to path matching order in FastAPI.
     """
     # Don't interfere with API routes - check these first
-    excluded_paths = ["api", "intake", "agent", "health"]
-    if full_path in excluded_paths or any(full_path.startswith(f"{p}/") for p in excluded_paths):
+    if full_path.startswith("api/") or \
+       full_path.startswith("intake/") or \
+       full_path.startswith("agent/") or \
+       full_path == "health":
         raise HTTPException(status_code=404, detail="Not found")
     
     # Serve frontend index.html
