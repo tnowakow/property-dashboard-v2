@@ -11,7 +11,7 @@ console.log('Backend URL:', BACKEND_URL || '(relative paths - same service)')
  * @param {Object} options - Query options
  * @param {string} options.status - Optional status filter
  * @param {number} options.limit - Maximum number of tickets (default 100)
- * @returns {Promise<Array>} List of ticket objects
+ * @returns {Promise<Array>} List of ticket objects with adjusted dates for demo freshness
  */
 export async function getTickets(options = {}) {
   const { status, limit = 100 } = options
@@ -35,10 +35,63 @@ export async function getTickets(options = {}) {
     throw new Error(error.error || `HTTP ${response.status}: ${response.statusText}`)
   }
   
-  const data = await response.json()
+  let data = await response.json()
+  
+  // Adjust dates to look fresh for demo (Option 1 - frontend adjustment)
+  // This makes the demo always look current regardless of when it's viewed
+  if (data.tickets && Array.isArray(data.tickets)) {
+    data.tickets = adjustDatesForDemo(data.tickets)
+  }
+  
   console.log('Tickets fetched:', data.count)
   
   return data.tickets || []
+}
+
+/**
+ * Adjust ticket dates to look fresh for demo purposes
+ * Makes tickets appear created within the last 0-72 hours based on urgency
+ * @param {Array} tickets - Array of ticket objects
+ * @returns {Array} Tickets with adjusted created_at timestamps
+ */
+function adjustDatesForDemo(tickets) {
+  const now = new Date()
+  
+  return tickets.map(ticket => {
+    // Parse the original created_at date
+    const originalCreated = new Date(ticket.created_at)
+    
+    // Calculate how old the ticket actually is (in hours)
+    const actualHoursOld = (now - originalCreated) / (1000 * 60 * 60)
+    
+    // Determine target age based on urgency and status
+    let targetHoursAgo
+    if (ticket.status === 'completed' || ticket.status === 'closed') {
+      // Completed tickets: 2-48 hours ago
+      targetHoursAgo = 2 + Math.random() * 46
+    } else if (ticket.urgency === 'EMERGENCY') {
+      // Emergency: just created (0-1 hour ago)
+      targetHoursAgo = Math.random()
+    } else if (ticket.urgency === 'HIGH') {
+      // High urgency: 1-6 hours ago
+      targetHoursAgo = 1 + Math.random() * 5
+    } else if (ticket.urgency === 'MEDIUM') {
+      // Medium urgency: 6-48 hours ago
+      targetHoursAgo = 6 + Math.random() * 42
+    } else {
+      // Low urgency or default: 12-72 hours ago
+      targetHoursAgo = 12 + Math.random() * 60
+    }
+    
+    // Create new timestamp that's targetHoursAgo in the past
+    const adjustedCreated = new Date(now.getTime() - targetHoursAgo * 60 * 60 * 1000)
+    
+    // Return ticket with adjusted date
+    return {
+      ...ticket,
+      created_at: adjustedCreated.toISOString(),
+    }
+  })
 }
 
 /**
