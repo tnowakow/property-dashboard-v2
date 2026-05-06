@@ -55,16 +55,23 @@ else:
     print(f"[Warning] Frontend dist not found at {FRONTEND_DIST} - API only mode")
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring."""
+    return {
+        "status": "healthy",
+        "service": "property-maintenance-dashboard",
+        "version": "2.0.0"
+    }
+
 @app.get("/")
 async def root():
-    """Health check endpoint - also serves frontend index.html if available."""
-    # Try to serve frontend
+    """Root endpoint - serves frontend index.html."""
     if os.path.exists(FRONTEND_DIST):
         index_file = os.path.join(FRONTEND_DIST, "index.html")
         if os.path.exists(index_file):
             return FileResponse(index_file)
     
-    # Fallback to API health check
     return {"status": "healthy", "service": "property-maintenance-agent"}
 
 
