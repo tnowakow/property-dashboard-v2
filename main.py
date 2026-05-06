@@ -399,23 +399,16 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
-
-
-# ============================================================================
-# SPA FALLBACK ROUTE (must be last due to path matching)
-# ============================================================================
-
 @app.get("/{full_path:path}", include_in_schema=False)
 async def serve_spa(full_path: str):
     """
     Serve React SPA for any non-API route.
     Returns index.html to let React Router handle client-side routing.
+    Must be last due to path matching order in FastAPI.
     """
-    # Don't interfere with API routes
-    if full_path.startswith("api/") or full_path in ["intake", "agent", "health"]:
+    # Don't interfere with API routes - check these first
+    excluded_paths = ["api", "intake", "agent", "health"]
+    if full_path in excluded_paths or any(full_path.startswith(f"{p}/") for p in excluded_paths):
         raise HTTPException(status_code=404, detail="Not found")
     
     # Serve frontend index.html
@@ -425,3 +418,15 @@ async def serve_spa(full_path: str):
             return FileResponse(index_file)
     
     raise HTTPException(status_code=404, detail="Frontend not available")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
+
+
+# ============================================================================
+# SPA FALLBACK ROUTE (must be last due to path matching)
+# ============================================================================
+
+
