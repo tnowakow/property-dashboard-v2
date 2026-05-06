@@ -57,41 +57,44 @@ export async function getTickets(options = {}) {
 function adjustDatesForDemo(tickets) {
   const now = new Date()
   
-  return tickets.map(ticket => {
-    // Parse the original created_at date
-    const originalCreated = new Date(ticket.created_at)
-    
-    // Calculate how old the ticket actually is (in hours)
-    const actualHoursOld = (now - originalCreated) / (1000 * 60 * 60)
-    
-    // Determine target age based on urgency and status
-    let targetHoursAgo
-    if (ticket.status === 'completed' || ticket.status === 'closed') {
-      // Completed tickets: 2-48 hours ago
-      targetHoursAgo = 2 + Math.random() * 46
-    } else if (ticket.urgency === 'EMERGENCY') {
-      // Emergency: just created (0-1 hour ago)
-      targetHoursAgo = Math.random()
-    } else if (ticket.urgency === 'HIGH') {
-      // High urgency: 1-6 hours ago
-      targetHoursAgo = 1 + Math.random() * 5
-    } else if (ticket.urgency === 'MEDIUM') {
-      // Medium urgency: 6-48 hours ago
-      targetHoursAgo = 6 + Math.random() * 42
-    } else {
-      // Low urgency or default: 12-72 hours ago
-      targetHoursAgo = 12 + Math.random() * 60
-    }
-    
-    // Create new timestamp that's targetHoursAgo in the past
-    const adjustedCreated = new Date(now.getTime() - targetHoursAgo * 60 * 60 * 1000)
-    
-    // Return ticket with adjusted date
-    return {
-      ...ticket,
-      created_at: adjustedCreated.toISOString(),
-    }
-  })
+  return tickets.map(ticket => adjustSingleTicketDate(ticket))
+}
+
+/**
+ * Adjust a single ticket's date to look fresh for demo purposes
+ * @param {Object} ticket - Single ticket object
+ * @returns {Object} Ticket with adjusted created_at timestamp
+ */
+function adjustSingleTicketDate(ticket) {
+  const now = new Date()
+  
+  // Determine target age based on urgency and status
+  let targetHoursAgo
+  if (ticket.status === 'completed' || ticket.status === 'closed') {
+    // Completed tickets: 2-48 hours ago
+    targetHoursAgo = 2 + Math.random() * 46
+  } else if (ticket.urgency === 'EMERGENCY') {
+    // Emergency: just created (0-1 hour ago)
+    targetHoursAgo = Math.random()
+  } else if (ticket.urgency === 'HIGH') {
+    // High urgency: 1-6 hours ago
+    targetHoursAgo = 1 + Math.random() * 5
+  } else if (ticket.urgency === 'MEDIUM') {
+    // Medium urgency: 6-48 hours ago
+    targetHoursAgo = 6 + Math.random() * 42
+  } else {
+    // Low urgency or default: 12-72 hours ago
+    targetHoursAgo = 12 + Math.random() * 60
+  }
+  
+  // Create new timestamp that's targetHoursAgo in the past
+  const adjustedCreated = new Date(now.getTime() - targetHoursAgo * 60 * 60 * 1000)
+  
+  // Return ticket with adjusted date
+  return {
+    ...ticket,
+    created_at: adjustedCreated.toISOString(),
+  }
 }
 
 /**
@@ -159,7 +162,7 @@ export async function updateTicket(ticketId, updates) {
  * @param {string} data.issue - Description of the maintenance issue
  * @param {string} data.phone - Tenant's phone number
  * @param {string} data.name - Tenant's name
- * @returns {Promise<Object>} Created ticket response with ID
+ * @returns {Promise<Object>} Created ticket response with adjusted date for demo freshness
  */
 export async function createTicket(data) {
   const url = `${BACKEND_URL}/api/tickets`
@@ -179,7 +182,12 @@ export async function createTicket(data) {
     throw new Error(error.error || `HTTP ${response.status}: ${response.statusText}`)
   }
   
-  return await response.json()
+  const ticket = await response.json()
+  
+  // Adjust the created_at date for demo freshness (same logic as getTickets)
+  ticket.created_at = adjustSingleTicketDate(ticket).created_at
+  
+  return ticket
 }
 
 /**
