@@ -194,7 +194,7 @@ class TicketResponse(BaseModel):
         description="AI-generated summary of the issue"
     )
     trade: Optional[Literal["HVAC", "Plumbing", "Electrical", "General", "Other"]] = Field(
-        default=None,
+        default=None, alias="trade_type",
         description="Classified trade type"
     )
     urgency: Optional[Literal["LOW", "MEDIUM", "HIGH", "EMERGENCY"]] = Field(
@@ -204,13 +204,19 @@ class TicketResponse(BaseModel):
     status: str = Field(..., description="Current ticket status")
     channel: str = Field(..., description="Intake channel (sms/call/web)")
     tenant_phone: Optional[str] = Field(default=None, description="Tenant's phone number")
+    tenant_name: Optional[str] = Field(default=None, description="Tenant's name")
     created_at: datetime = Field(..., description="Ticket creation timestamp")
     updated_at: datetime = Field(..., description="Last update timestamp")
     assigned_vendor_id: Optional[str] = Field(
-        default=None,
+        default=None, alias="vendor_id",
         description="ID of assigned vendor"
     )
     notes: Optional[str] = Field(default=None, description="Internal notes")
+    
+    model_config = {
+        'populate_by_name': True,
+        'from_attributes': True
+    }
 
 
 class ProcessAgentRequest(BaseModel):

@@ -423,8 +423,15 @@ async def update_ticket_endpoint(ticket_id: str, updates: dict):
                 detail={"error": "Ticket not found", "ticket_id": ticket_id}
             )
         
+        # Ensure all UUID fields are strings
+        import uuid
+        if isinstance(updated_ticket.get('id'), uuid.UUID):
+            updated_ticket['id'] = str(updated_ticket['id'])
+        if isinstance(updated_ticket.get('vendor_id'), uuid.UUID):
+            updated_ticket['vendor_id'] = str(updated_ticket['vendor_id'])
+        
         logger.info(f"Updated ticket {ticket_id} successfully")
-        return TicketResponse.model_validate(updated_ticket)
+        return updated_ticket
         
     except HTTPException:
         raise
