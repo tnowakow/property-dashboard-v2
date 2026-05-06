@@ -17,7 +17,13 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
+# Environment variables (SENSITIVE - DO NOT COMMIT)
+.env
+.env.local
+.env.*.local
+CREDENTIALS.md
+credentials.md
+*.credentials
 *.ntvs*
 *.njsproj
 *.sln
