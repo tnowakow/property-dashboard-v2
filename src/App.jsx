@@ -185,7 +185,15 @@ function App() {
       <header className="bg-card border-b sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Property Maintenance Dashboard</h1>
+            <div className="flex items-center gap-3">
+              {/* Boss Icon */}
+              <img 
+                src="/boss-icon.svg" 
+                alt="PropertyBoss" 
+                className="w-10 h-10"
+              />
+              <h1 className="text-xl font-bold">PropertyBoss | Property Maintenance Dashboard</h1>
+            </div>
             
             <div className="flex items-center gap-2">
               {/* View Mode Toggle */}
