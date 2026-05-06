@@ -26,3 +26,4 @@ credentials.md
 *.njsproj
 *.sln
 *.sw?
+package.json
