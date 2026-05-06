@@ -28,6 +28,14 @@ function App() {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setDarkMode(true)
     }
+    
+    // Auto-refresh tickets every 30 seconds to catch new SMS/voice intake
+    const refreshInterval = setInterval(() => {
+      console.log('Auto-refreshing tickets...')
+      loadTickets()
+    }, 30000) // 30 seconds
+    
+    return () => clearInterval(refreshInterval)
   }, [])
 
   useEffect(() => {

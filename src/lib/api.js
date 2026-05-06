@@ -68,6 +68,13 @@ function adjustDatesForDemo(tickets) {
 function adjustSingleTicketDate(ticket) {
   const now = new Date()
   
+  console.log(`Adjusting date for ticket ${ticket.id}:`, {
+    original: ticket.created_at,
+    urgency: ticket.urgency,
+    status: ticket.status,
+    now: now.toISOString(),
+  })
+  
   // Determine target age based on urgency and status
   let targetHoursAgo
   if (ticket.status === 'completed' || ticket.status === 'closed') {
@@ -87,8 +94,12 @@ function adjustSingleTicketDate(ticket) {
     targetHoursAgo = 12 + Math.random() * 60
   }
   
+  console.log(`Target age for ${ticket.urgency}/${ticket.status}: ${targetHoursAgo.toFixed(2)} hours ago`)
+  
   // Create new timestamp that's targetHoursAgo in the past
   const adjustedCreated = new Date(now.getTime() - targetHoursAgo * 60 * 60 * 1000)
+  
+  console.log(`Adjusted date: ${adjustedCreated.toISOString()} (${adjustedCreated.toLocaleString()})`)
   
   // Return ticket with adjusted date
   return {
