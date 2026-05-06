@@ -17,5 +17,6 @@ numReplicas = 1
 # Runtime settings - Python only, no Node build needed (frontend pre-built)
 [env]
 PYTHON_VERSION = "3.11"
+NODE_VERSION = "20.19.0"
 NODE_ENV = "production"
 PORT = 8000
