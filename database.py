@@ -40,12 +40,9 @@ async def get_db_pool() -> asyncpg.Pool:
         
         # Create connection pool (5-10 connections is typical for web apps)
         _db_pool = await asyncpg.create_pool(
-            dsn=database_url,
-            minimum_size=3,
-            maximum_size=10,
-            command_timeout=60
+            dsn=database_url
         )
-        print(f"[Database] Initialized PostgreSQL connection pool (3-10 connections)")
+        print(f"[Database] Initialized PostgreSQL connection pool")
     
     return _db_pool
 
