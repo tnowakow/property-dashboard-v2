@@ -126,7 +126,7 @@ async def intake_sms(request: Request):
     except Exception as e:
         logger.error(f"Error processing SMS intake: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to process SMS intake", "message": str(e)}
         )
 
@@ -158,7 +158,7 @@ async def intake_voice(request: VoiceIntakeRequest):
     except Exception as e:
         logger.error(f"Error processing voice intake: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to process voice intake", "message": str(e)}
         )
 
@@ -191,7 +191,7 @@ async def intake_web(request: WebIntakeRequest):
     except Exception as e:
         logger.error(f"Error processing web intake: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to process web form submission", "message": str(e)}
         )
 
@@ -222,7 +222,7 @@ async def get_ticket_endpoint(ticket_id: str):
     except Exception as e:
         logger.error(f"Error retrieving ticket {ticket_id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to retrieve ticket", "message": str(e)}
         )
 
@@ -259,7 +259,7 @@ async def list_tickets(
     except Exception as e:
         logger.error(f"Error listing tickets: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to list tickets", "message": str(e)}
         )
 
@@ -291,7 +291,7 @@ async def create_ticket_endpoint(request: WebIntakeRequest):
     except Exception as e:
         logger.error(f"Error creating ticket: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to create ticket", "message": str(e)}
         )
 
@@ -336,7 +336,7 @@ async def update_ticket_endpoint(ticket_id: str, updates: dict):
     except Exception as e:
         logger.error(f"Error updating ticket {ticket_id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to update ticket", "message": str(e)}
         )
 
@@ -384,7 +384,7 @@ async def process_agent(request: ProcessAgentRequest):
     except Exception as e:
         logger.error(f"Error triggering agent process for ticket {request.ticket_id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail={"error": "Failed to trigger agent processing", "message": str(e)}
         )
 
