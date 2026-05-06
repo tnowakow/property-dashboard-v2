@@ -151,10 +151,12 @@ async def intake_sms(request: Request):
         
         # Extract unit number (e.g., "1A", "2B", "101")
         # Look for patterns like "unit 2A", "apartment 1B", or just "2A" at start
-        unit_match = re.search(r'\b(unit|apt|apartment)\s*(\d+[A-Z]?)\b', message, re.IGNORECASE)
+        # Case-insensitive matching for both digits and letters
+        unit_match = re.search(r'\b(unit|apt|apartment)\s*(\d+[a-zA-Z]?)\b', message, re.IGNORECASE)
         if not unit_match:
             # Try to find standalone unit number (e.g., "2A has a leak")
-            unit_match = re.search(r'\b(\d+[A-Z])\b', message)
+            # Match patterns like "1a", "2B", "101" - digits followed by optional letter
+            unit_match = re.search(r'\b(\d+[a-zA-Z])\b', message)
         
         if unit_match:
             unit = unit_match.group(2) if unit_match.lastindex >= 2 else unit_match.group(1)
