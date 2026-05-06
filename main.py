@@ -51,10 +51,14 @@ app.add_middleware(
 
 # Serve static frontend files (if built)
 FRONTEND_DIST = os.path.join(os.path.dirname(__file__), 'dist')
+
+# Mount static files at /assets for JS/CSS bundles, and serve index.html separately
 if os.path.exists(FRONTEND_DIST):
     from fastapi.staticfiles import StaticFiles
-    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="static")
-    print(f"[Startup] Frontend static files mounted at {FRONTEND_DIST}")
+    assets_dir = os.path.join(FRONTEND_DIST, 'assets')
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="static-assets")
+        print(f"[Startup] Frontend static files mounted at {FRONTEND_DIST}")
 else:
     print(f"[Warning] Frontend dist not found at {FRONTEND_DIST} - API only mode")
 
@@ -67,6 +71,33 @@ async def health_check():
         "service": "property-maintenance-dashboard",
         "version": "2.0.0"
     }
+
+@app.get("/")
+async def serve_root():
+    """Serve React SPA index.html at root."""
+    if os.path.exists(FRONTEND_DIST):
+        index_file = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+    raise HTTPException(status_code=404, detail="Frontend not available")
+
+@app.get("/favicon.svg")
+async def serve_favicon():
+    """Serve favicon."""
+    if os.path.exists(FRONTEND_DIST):
+        favicon_path = os.path.join(FRONTEND_DIST, "favicon.svg")
+        if os.path.exists(favicon_path):
+            return FileResponse(favicon_path)
+    raise HTTPException(status_code=404, detail="Favicon not found")
+
+@app.get("/icons.svg")
+async def serve_icons():
+    """Serve icons."""
+    if os.path.exists(FRONTEND_DIST):
+        icons_path = os.path.join(FRONTEND_DIST, "icons.svg")
+        if os.path.exists(icons_path):
+            return FileResponse(icons_path)
+    raise HTTPException(status_code=404, detail="Icons not found")
 
 
 # ============================================================================
@@ -416,8 +447,6 @@ async def serve_spa(full_path: str):
         index_file = os.path.join(FRONTEND_DIST, "index.html")
         if os.path.exists(index_file):
             return FileResponse(index_file)
-    
-    raise HTTPException(status_code=404, detail="Frontend not available")
     
     raise HTTPException(status_code=404, detail="Frontend not available")
 
